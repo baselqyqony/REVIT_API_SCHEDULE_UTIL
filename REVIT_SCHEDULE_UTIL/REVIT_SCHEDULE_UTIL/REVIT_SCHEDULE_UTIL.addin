@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+  <AddIn Type="Command">
+    <Text>create Schedule Sample</Text>
+    <Description>sample util to create Revit Schedule</Description>
+    <Assembly>REVIT_SCHEDULE_UTIL.dll</Assembly>
+    <FullClassName>REVIT_SCHEDULE_UTIL.Command</FullClassName>
+    <ClientId>d82b6f36-d2d4-423c-8f03-ff1f3ea6016b</ClientId>
+    <VendorId>TBC_</VendorId>
+    <VendorDescription>Global Mimar Syria,www.globalmimar.com</VendorDescription>
+  </AddIn>
+  <AddIn Type="Application">
+    <Name>Application REVIT_SCHEDULE_UTIL</Name>
+    <Assembly>REVIT_SCHEDULE_UTIL.dll</Assembly>
+    <FullClassName>REVIT_SCHEDULE_UTIL.App</FullClassName>
+    <ClientId>e67d9d96-7f43-489f-b363-7f4d834c093c</ClientId>
+    <VendorId>GMSY</VendorId>
+    <VendorDescription>Global Mimar Syria,www.globalmimar.com</VendorDescription>
+  </AddIn>
+</RevitAddIns>

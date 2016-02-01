@@ -44,6 +44,26 @@ namespace REVIT_SCHEDULE_UTIL
 
             return Schedule;
         }
+        /// <summary>
+        /// generate Schedule With All Posibble Fields
+        /// </summary>
+        /// <returns></returns>
+        public ViewSchedule generateScheduleWithAllFields()
+        {
+
+            Schedule = ViewSchedule.CreateSchedule(doc, new ElementId(scheduleCategory), ElementId.InvalidElementId);
+            foreach (SchedulableField schedulableField in Schedule.Definition.GetSchedulableFields())
+            {
+                foreach (string fieldName in FieldsNames)
+                {
+                   
+                        Schedule.Definition.AddField(schedulableField);
+                      
+                }
+            }
+
+            return Schedule;
+        }
 
 
     }

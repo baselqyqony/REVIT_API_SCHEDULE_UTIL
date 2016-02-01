@@ -21,7 +21,10 @@ namespace REVIT_SCHEDULE_UTIL
             this.doc = doc;
 
         }
-
+        /// <summary>
+        /// generate schedule with current settings
+        /// </summary>
+        /// <returns> ViewSchedule </returns>
         public ViewSchedule generateSchedule()
         {
 

@@ -56,9 +56,10 @@ namespace REVIT_SCHEDULE_UTIL
                 fields.Add("WORKING COMPRESSION LOAD");
                 fields.Add("REINFORCEMENT");
                 fields.Add("COUNT");
-                fields.Add("TYPE MARK");
+            
                 ScheduleUtil scUtil = new ScheduleUtil(doc, BuiltInCategory.OST_StructuralFoundation, fields);
-                schedule = scUtil.generateSchedule();
+               scUtil.generateSchedule();
+               schedule = scUtil.sortBy("TYPE MARK",false);
                 if (null != schedule)
                 {
                  

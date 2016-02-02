@@ -56,15 +56,49 @@ namespace REVIT_SCHEDULE_UTIL
             {
                 foreach (string fieldName in FieldsNames)
                 {
-                   
-                        Schedule.Definition.AddField(schedulableField);
-                      
+
+                    Schedule.Definition.AddField(schedulableField);
+
                 }
             }
 
             return Schedule;
         }
+        /// <summary>
+        /// sort schedule by selected field
+        /// </summary>
+        /// <param name="columnName">field name</param>
+        /// <param name="isItemized">wether is itemized or not</param>
+        /// <returns>viewSchedule</returns>
+        public ViewSchedule sortBy(string columnName,Boolean isItemized)
+        {
+            if (Schedule != null)
+            {
+                int scheduleFieldsCount = Schedule.Definition.GetFieldCount();
+
+               for(int i=0;i<scheduleFieldsCount;i++){
+                   ScheduleField schedulableField = Schedule.Definition.GetField(i);
+                    if (schedulableField.GetName().ToUpper() == columnName.ToUpper())
+                    {
+
+                        ScheduleSortGroupField sortGroupField = new ScheduleSortGroupField(schedulableField.FieldId);
+                        
+                        sortGroupField.ShowHeader = false;
+                        
+                        Schedule.Definition.AddSortGroupField(sortGroupField);
+                        Schedule.Definition.IsItemized = isItemized;
+                    }
+                }
+                return Schedule;
+            }
+            else
+            {
+                System.Windows.Forms.MessageBox.Show("please generate schedule first");
+                return null;
+            }
 
 
+
+        }
     }
 }

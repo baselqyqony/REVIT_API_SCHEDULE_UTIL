@@ -59,7 +59,12 @@ namespace REVIT_SCHEDULE_UTIL
             
                 ScheduleUtil scUtil = new ScheduleUtil(doc, BuiltInCategory.OST_StructuralFoundation, fields);
                scUtil.generateSchedule();
-               schedule = scUtil.sortBy("TYPE MARK",false);
+               scUtil.sortBy("TYPE MARK",false);
+
+               List<string> fieldsToBeHidden = new List<string>();
+               fieldsToBeHidden.Add("COUNT");
+               scUtil.hideFields(fieldsToBeHidden);
+               schedule = scUtil.Schedule;
                 if (null != schedule)
                 {
                  

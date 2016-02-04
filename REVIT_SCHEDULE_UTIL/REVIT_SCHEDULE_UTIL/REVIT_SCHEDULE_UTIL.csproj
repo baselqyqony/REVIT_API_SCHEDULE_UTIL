@@ -60,7 +60,9 @@
     <Compile Include="ScheduleUtil.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="REVIT_SCHEDULE_UTIL.addin" />
+    <None Include="REVIT_SCHEDULE_UTIL.addin">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterClean">

@@ -9,23 +9,26 @@ namespace REVIT_SCHEDULE_UTIL
 {
     public class ScheduleUtil
     {
-        private ViewSchedule Schedule = null;
+        public  ViewSchedule Schedule {set;get;}
         public List<string> FieldsNames { set; get; }
         public BuiltInCategory scheduleCategory { set; get; }
         public Document doc { set; get; }
+
+
 
         public ScheduleUtil(Document doc, BuiltInCategory scheduleCategory, List<string> FieldsNames)
         {
             this.FieldsNames = FieldsNames;
             this.scheduleCategory = scheduleCategory;
             this.doc = doc;
+            Schedule = null;
 
         }
         /// <summary>
         /// generate schedule with current settings
         /// </summary>
         /// <returns> ViewSchedule </returns>
-        public ViewSchedule generateSchedule()
+        public void generateSchedule()
         {
 
             Schedule = ViewSchedule.CreateSchedule(doc, new ElementId(scheduleCategory), ElementId.InvalidElementId);
@@ -42,13 +45,13 @@ namespace REVIT_SCHEDULE_UTIL
                 }
             }
 
-            return Schedule;
+            
         }
         /// <summary>
         /// generate Schedule With All Posibble Fields
         /// </summary>
         /// <returns></returns>
-        public ViewSchedule generateScheduleWithAllFields()
+        public void generateScheduleWithAllFields()
         {
 
             Schedule = ViewSchedule.CreateSchedule(doc, new ElementId(scheduleCategory), ElementId.InvalidElementId);
@@ -62,7 +65,7 @@ namespace REVIT_SCHEDULE_UTIL
                 }
             }
 
-            return Schedule;
+         
         }
         /// <summary>
         /// sort schedule by selected field
@@ -100,5 +103,30 @@ namespace REVIT_SCHEDULE_UTIL
 
 
         }
-    }
+
+        public void hideFields(List<string> fieldsNames)
+        {
+            if (Schedule != null)
+            {
+                foreach (string s in fieldsNames)
+                {
+
+                    for (int i = 0; i < Schedule.Definition.GetFieldCount(); i++)
+                    {
+                        ScheduleField SF = Schedule.Definition.GetField(i);
+                        if (SF.GetName().ToUpper() == s.ToUpper())
+                        {
+                            SF.IsHidden = true;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                System.Windows.Forms.MessageBox.Show("please generate schedule first");
+            
+            }
+            
+        }    }
+
 }

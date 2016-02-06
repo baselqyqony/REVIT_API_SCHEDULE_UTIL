@@ -73,7 +73,7 @@ namespace REVIT_SCHEDULE_UTIL
         /// <param name="columnName">field name</param>
         /// <param name="isItemized">wether is itemized or not</param>
         /// <returns>viewSchedule</returns>
-        public ViewSchedule sortBy(string columnName,Boolean isItemized)
+        public  void sortBy(string columnName,Boolean isItemized)
         {
             if (Schedule != null)
             {
@@ -92,18 +92,46 @@ namespace REVIT_SCHEDULE_UTIL
                         Schedule.Definition.IsItemized = isItemized;
                     }
                 }
-                return Schedule;
+                
             }
             else
             {
                 System.Windows.Forms.MessageBox.Show("please generate schedule first");
-                return null;
+              
             }
 
 
 
         }
 
+        public void filterFields(List<ScheduleFilterDataHolder> filters)
+        {
+
+            if (Schedule != null)
+            {
+                int scheduleFieldsCount = Schedule.Definition.GetFieldCount();
+
+                for (int i = 0; i < scheduleFieldsCount; i++)
+                {
+                    ScheduleField schedulableField = Schedule.Definition.GetField(i);
+                    foreach (ScheduleFilterDataHolder filter in filters)
+                    {
+                        if (filter.fieldName.ToUpper() == schedulableField.GetName().ToUpper())
+                        {
+                            ScheduleFilter sFilter = new ScheduleFilter(schedulableField.FieldId, filter.filterType, filter.Value);
+                            Schedule.Definition.AddFilter(sFilter);
+                            break;
+                        }
+                    }
+                }
+
+            }
+            else
+            {
+                System.Windows.Forms.MessageBox.Show("please generate schedule first");
+
+            }
+        }
         public void hideFields(List<string> fieldsNames)
         {
             if (Schedule != null)

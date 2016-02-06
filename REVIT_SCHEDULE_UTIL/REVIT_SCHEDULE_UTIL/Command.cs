@@ -62,8 +62,18 @@ namespace REVIT_SCHEDULE_UTIL
                scUtil.sortBy("TYPE MARK",false);
 
                List<string> fieldsToBeHidden = new List<string>();
-               fieldsToBeHidden.Add("COUNT");
+               fieldsToBeHidden.Add("TYPE MARK");
+
                scUtil.hideFields(fieldsToBeHidden);
+
+                //adding filters 
+                List<ScheduleFilterDataHolder> filters=new List<ScheduleFilterDataHolder>();
+                ScheduleFilterDataHolder filter = new ScheduleFilterDataHolder("TYPE MARK", ScheduleFilterType.Equal, "BP-1");
+                filters.Add(filter);
+                scUtil.filterFields(filters);
+            
+
+
                schedule = scUtil.Schedule;
                 if (null != schedule)
                 {

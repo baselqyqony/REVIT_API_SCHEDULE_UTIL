@@ -132,6 +132,12 @@ namespace REVIT_SCHEDULE_UTIL
 
             }
         }
+
+ 
+        /// <summary>
+        /// hide list of selected field in the schedule
+        /// </summary>
+        /// <param name="fieldsNames"> list of fienlds names that are going to be hidden</param>
         public void hideFields(List<string> fieldsNames)
         {
             if (Schedule != null)

@@ -7,6 +7,7 @@ using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
+using System.Linq;
 #endregion
 
 namespace REVIT_SCHEDULE_UTIL
@@ -44,11 +45,30 @@ namespace REVIT_SCHEDULE_UTIL
             ////////}
 
             ////////// Modify document within a transaction
+           
+           
+            ////Dictionary<string, List<FamilySymbol>> categoryFamilies = scUtil.FindFamilyTypes(doc, BuiltInCategory.OST_StructuralFoundation);
+            ////List<List<FamilySymbol>> familySymbolsLists = categoryFamilies.Values.ToList();
+            ////foreach (List<FamilySymbol> familySymbolList in familySymbolsLists)
+            ////{
+            ////    foreach (FamilySymbol fs in familySymbolList)
+            ////    {
+            ////        try
+            ////        {
+            ////            Parameter p = fs.GetParameters("BK").First();
+            ////        }
+            ////        catch
+            ////        {
+            ////            scUtil.addParameter(doc, fs.Family, "BK");
+            ////        }
+
+            ////    }
+            ////}
+         
 
             using (Transaction tx = new Transaction(doc))
             {
-                ViewSchedule schedule = null;
-                tx.Start("Create Piles Schedule");
+                tx.Start("making schedule");
                 List<string> fields = new List<string>();
                 fields.Add("TYPE MARK");
                 fields.Add("LENGTH");
@@ -56,8 +76,22 @@ namespace REVIT_SCHEDULE_UTIL
                 fields.Add("WORKING COMPRESSION LOAD");
                 fields.Add("REINFORCEMENT");
                 fields.Add("COUNT");
-            
+                fields.Add("BK");
+
                 ScheduleUtil scUtil = new ScheduleUtil(doc, BuiltInCategory.OST_StructuralFoundation, fields);
+                // scUtil.CreateProjectParameter(app, "BK",ParameterType.Text, BuiltInCategory.OST_StructuralFoundation, BuiltInParameterGroup.PG_TEXT, true);
+                Category foundationCategory = doc.Settings.Categories.get_Item(BuiltInCategory.OST_StructuralFoundation);
+                CategorySet cats1 = app.Create.NewCategorySet();
+
+                cats1.Insert(foundationCategory);
+
+                if (!scUtil.getProjectParametersNames(doc).Contains("BK"))
+                scUtil.CreateProjectParameter(app, "BK", ParameterType.Text, cats1, BuiltInParameterGroup.PG_TEXT, true);
+           
+
+            
+                ViewSchedule schedule = null;
+         
                scUtil.generateSchedule();
                scUtil.sortBy("TYPE MARK",false);
 
@@ -70,8 +104,11 @@ namespace REVIT_SCHEDULE_UTIL
                 List<ScheduleFilterDataHolder> filters=new List<ScheduleFilterDataHolder>();
                 ScheduleFilterDataHolder filter = new ScheduleFilterDataHolder("TYPE MARK", ScheduleFilterType.Equal, "BP-1");
                 filters.Add(filter);
-                scUtil.filterFields(filters);
             
+
+                scUtil.filterFields(filters);
+             
+         
 
 
                schedule = scUtil.Schedule;

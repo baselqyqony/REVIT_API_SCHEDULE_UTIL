@@ -1,6 +1,9 @@
-﻿using Autodesk.Revit.DB;
+﻿using Autodesk.Revit.ApplicationServices;
+using Autodesk.Revit.DB;
+using Autodesk.Revit.UI;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -104,6 +107,10 @@ namespace REVIT_SCHEDULE_UTIL
 
         }
 
+        /// <summary>
+        /// filter fields
+        /// </summary>
+        /// <param name="filters">applied filters array</param>
         public void filterFields(List<ScheduleFilterDataHolder> filters)
         {
 
@@ -132,7 +139,131 @@ namespace REVIT_SCHEDULE_UTIL
 
             }
         }
+        /// <summary>
+        /// get BuiltInCategoryFamily
+        /// </summary>
+        /// <param name="doc">document</param>
+        /// <param name="cat">category</param>
+        /// <returns></returns>
+        public  Dictionary<string, List<FamilySymbol>> FindFamilyTypes(Document doc, BuiltInCategory cat)
+        {
+            return new FilteredElementCollector(doc)
+                            .WherePasses(new ElementClassFilter(typeof(FamilySymbol)))
+                            .WherePasses(new ElementCategoryFilter(cat))
+                            .Cast<FamilySymbol>()
+                            .GroupBy(e => e.Family.Name)
+                            .ToDictionary(e => e.Key, e => e.ToList());
+        }
 
+        /// <summary>
+        /// list available project parameters
+        /// </summary>
+        /// <param name="doc">revit document</param>
+        /// <returns></returns>
+        public List<string> getProjectParametersNames(Document doc)
+        {
+            List<string> output = new List<string>();
+            BindingMap map = doc.ParameterBindings;
+            DefinitionBindingMapIterator it = map.ForwardIterator();
+            it.Reset();
+            while (it.MoveNext())
+            {
+                ElementBinding eleBinding = it.Current as ElementBinding;
+                InstanceBinding insBinding = eleBinding as InstanceBinding;
+                Definition def = it.Key;
+                if (def != null)
+                {
+                    output.Add(def.Name);
+                }
+            }
+
+            return output;
+        }
+
+        /// <summary>
+        /// create project parameter
+        /// source :http://spiderinnet.typepad.com/blog/2011/05/parameter-of-revit-api-31-create-project-parameter.html
+        /// </summary>
+        /// <param name="app">revit application</param>
+        /// <param name="name">revit ui application</param>
+        /// <param name="type">parameter type</param>
+        /// <param name="cats">category set</param>
+        /// <param name="group">parameter group</param>
+        /// <param name="inst">is instance variable</param>
+        public  void CreateProjectParameter(Application app, string name, ParameterType type,  CategorySet cats, BuiltInParameterGroup group, bool instance)
+        {
+    
+
+            string oriFile = app.SharedParametersFilename;
+            string tempFile = Path.GetTempFileName() + ".txt";
+            using (File.Create(tempFile)) { }
+            app.SharedParametersFilename = tempFile;
+    
+             ExternalDefinitionCreationOptions edc=new ExternalDefinitionCreationOptions(name, type);
+             ExternalDefinition def = app.OpenSharedParameterFile().Groups.Create("TemporaryDefintionGroup").Definitions.Create(edc) as ExternalDefinition;
+
+            app.SharedParametersFilename = oriFile;
+            File.Delete(tempFile);
+
+            Autodesk.Revit.DB.Binding binding = app.Create.NewTypeBinding(cats);
+            if (instance) binding = app.Create.NewInstanceBinding(cats);
+            BindingMap map = (new UIApplication(app)).ActiveUIDocument.Document.ParameterBindings;
+            map.Insert(def, binding, group);
+        }
+
+        /// <summary>
+        /// create custom parameter
+        /// </summary>
+        /// <param name="doc">document</param>
+        /// <param name="fam">family</param>
+        /// <param name="parameterName">parameter Name</param>
+        public Boolean addFamilyParameter( Document doc, Family fam,string parameterName)
+        {
+            Document familyDoc = doc.EditFamily(fam);
+            Transaction t = new Transaction(familyDoc);
+            Boolean result = false;
+            try
+            {
+                
+                
+                t.Start("add " + parameterName + " to " + fam.Name);
+                BuiltInParameterGroup addToGroup = BuiltInParameterGroup.PG_TEXT;
+                ParameterType parameterType = ParameterType.Text;
+                familyDoc.FamilyManager.AddParameter(parameterName, addToGroup, parameterType, true);
+               // t.Commit();
+
+             //   familyLoadOptions flo = new familyLoadOptions();
+              //  familyDoc.LoadFamily(doc, flo);
+               // familyDoc.Close(false);
+                result = true;
+               
+            }
+            catch {
+                
+             
+                result = false;
+             
+            }
+            finally
+            {
+                if (true == result)
+                {
+                    t.Commit();
+                    familyLoadOptions flo = new familyLoadOptions();
+                    familyDoc.LoadFamily(doc, flo);
+                    familyDoc.Close(false);
+                }
+                else
+                {
+                    t.RollBack();
+                    familyDoc.Close(false);
+                }
+
+                
+            }
+
+            return result;
+        }
  
         /// <summary>
         /// hide list of selected field in the schedule

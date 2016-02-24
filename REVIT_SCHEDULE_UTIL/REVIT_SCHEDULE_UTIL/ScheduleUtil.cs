@@ -34,6 +34,8 @@ namespace REVIT_SCHEDULE_UTIL
         public void generateSchedule()
         {
 
+            IList<ScheduleFieldId> ordereieldsIDS = new List<ScheduleFieldId>();
+
             Schedule = ViewSchedule.CreateSchedule(doc, new ElementId(scheduleCategory), ElementId.InvalidElementId);
             foreach (SchedulableField schedulableField in Schedule.Definition.GetSchedulableFields())
             {
@@ -41,14 +43,69 @@ namespace REVIT_SCHEDULE_UTIL
                 {
                     if (schedulableField.GetName(doc).ToUpper() == fieldName.ToUpper())
                     {
-
                         Schedule.Definition.AddField(schedulableField);
                         break;
                     }
                 }
             }
+            removeDuplicated();
+            IList<ScheduleFieldId> fieldsIDS = Schedule.Definition.GetFieldOrder();
 
+
+            foreach (string fieldName in FieldsNames)
+            {
+                foreach (ScheduleFieldId fid in fieldsIDS)
+                {
+                    ScheduleField schedulableField = Schedule.Definition.GetField(fid);
+                    if (schedulableField.GetName().ToUpper() == fieldName.ToUpper())
+                    {
+                        ordereieldsIDS.Add(fid);
+                        break;
+                    }
+                }
+            }
+
+            try
+            {
+                Schedule.Definition.SetFieldOrder(ordereieldsIDS);
+            }
+            catch (Exception ex) {  }
             
+        }
+
+        /// <summary>
+        /// remove strange duplicated fields caused by revit
+        /// </summary>
+        private void removeDuplicated()
+        {
+            List<ScheduleFieldId> unneededFields = new List<ScheduleFieldId>();
+            for (int i = 0; i < Schedule.Definition.GetFieldCount(); i++)
+            {
+                ScheduleField schedulableFieldi = Schedule.Definition.GetField(Schedule.Definition.GetFieldId(i));
+                for (int j = 0; j < Schedule.Definition.GetFieldCount(); j++)
+                {
+                    if (i == j) break;
+
+                    ScheduleField schedulableFieldj = Schedule.Definition.GetField(Schedule.Definition.GetFieldId(j));
+                    if (schedulableFieldi.GetName().ToUpper() == schedulableFieldj.GetName().ToUpper())
+                    {
+                        if (!unneededFields.Contains(Schedule.Definition.GetFieldId(j)))
+                            unneededFields.Add(Schedule.Definition.GetFieldId(j));
+
+                    }
+
+                }
+
+
+            }
+
+
+            foreach (ScheduleFieldId id in unneededFields)
+            {
+                Schedule.Definition.RemoveField(id);
+
+            }
+
         }
         /// <summary>
         /// generate Schedule With All Posibble Fields
@@ -100,7 +157,6 @@ namespace REVIT_SCHEDULE_UTIL
             else
             {
                 System.Windows.Forms.MessageBox.Show("please generate schedule first");
-              
             }
 
 
@@ -259,7 +315,6 @@ namespace REVIT_SCHEDULE_UTIL
                     familyDoc.Close(false);
                 }
 
-                
             }
 
             return result;

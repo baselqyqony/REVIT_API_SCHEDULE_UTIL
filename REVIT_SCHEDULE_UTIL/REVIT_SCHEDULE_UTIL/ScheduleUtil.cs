@@ -89,16 +89,13 @@ namespace REVIT_SCHEDULE_UTIL
                     ScheduleField schedulableFieldj = Schedule.Definition.GetField(Schedule.Definition.GetFieldId(j));
                     if (schedulableFieldi.GetName().ToUpper() == schedulableFieldj.GetName().ToUpper())
                     {
-                        if (!unneededFields.Contains(Schedule.Definition.GetFieldId(j)))
-                            unneededFields.Add(Schedule.Definition.GetFieldId(j));
-
+                        if (!unneededFields.Contains(Schedule.Definition.GetFieldId(i)))
+                            unneededFields.Add(Schedule.Definition.GetFieldId(i));
                     }
 
                 }
 
-
             }
-
 
             foreach (ScheduleFieldId id in unneededFields)
             {
